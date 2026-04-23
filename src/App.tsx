@@ -1,8 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Box, Container } from '@mui/material';
 import Navbar from './components/Navbar';
-import CustomersPage from './pages/CustomersPage';
-import TrainingsPage from './pages/TrainingsPage';
+import CustomersPage from './pages/CustomersPage.tsx';
+import TrainingsPage from './pages/TrainingsPage.tsx';
 
 function App() {
   return (

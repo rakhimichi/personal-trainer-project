@@ -4,7 +4,6 @@ import {
   Alert,
   Box,
   CircularProgress,
-  InputAdornment,
   Paper,
   TextField,
   Typography,
@@ -26,7 +25,7 @@ function CustomersPage() {
         setError('');
         const data = await getCustomers();
         setCustomers(data);
-      } catch (err) {
+      } catch {
         setError('Failed to load customers');
       } finally {
         setLoading(false);
@@ -93,12 +92,10 @@ function CustomersPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search by name, city, email, phone..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+            },
           }}
         />
       </Paper>

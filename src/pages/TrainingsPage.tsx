@@ -5,7 +5,6 @@ import {
   Alert,
   Box,
   CircularProgress,
-  InputAdornment,
   Paper,
   TextField,
   Typography,
@@ -27,7 +26,7 @@ function TrainingsPage() {
         setError('');
         const data = await getTrainings();
         setTrainings(data);
-      } catch (err) {
+      } catch {
         setError('Failed to load trainings');
       } finally {
         setLoading(false);
@@ -69,7 +68,13 @@ function TrainingsPage() {
   const columns: GridColDef[] = [
     { field: 'date', headerName: 'Date', flex: 1.1, minWidth: 180 },
     { field: 'activity', headerName: 'Activity', flex: 1.2, minWidth: 180 },
-    { field: 'duration', headerName: 'Duration (min)', flex: 0.9, minWidth: 140, type: 'number' },
+    {
+      field: 'duration',
+      headerName: 'Duration (min)',
+      flex: 0.9,
+      minWidth: 140,
+      type: 'number',
+    },
     { field: 'customer', headerName: 'Customer', flex: 1.2, minWidth: 180 },
   ];
 
@@ -86,12 +91,10 @@ function TrainingsPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search by activity, customer or date..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+            },
           }}
         />
       </Paper>
