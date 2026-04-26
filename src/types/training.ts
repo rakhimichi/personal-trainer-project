@@ -16,3 +16,10 @@ export type Training = {
   activity: string;
   customer: TrainingCustomer;
 };
+
+export type TrainingFormData = {
+  date: string;
+  duration: number;
+  activity: string;
+  customer: string;
+};

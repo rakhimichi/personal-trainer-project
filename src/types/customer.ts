@@ -1,4 +1,4 @@
-export type Customer = {
+export type CustomerFormData = {
   firstname: string;
   lastname: string;
   streetaddress: string;
@@ -6,6 +6,9 @@ export type Customer = {
   city: string;
   email: string;
   phone: string;
+};
+
+export type Customer = CustomerFormData & {
   _links: {
     self: {
       href: string;

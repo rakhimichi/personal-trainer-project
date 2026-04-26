@@ -1,37 +1,50 @@
 import { useEffect, useMemo, useState } from 'react';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import SearchIcon from '@mui/icons-material/Search';
 import {
   Alert,
   Box,
+  Button,
   CircularProgress,
+  IconButton,
   Paper,
+  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
 import { DataGrid, type GridColDef, type GridRowsProp } from '@mui/x-data-grid';
-import { getCustomers } from '../api/customers';
-import type { Customer } from '../types/customer';
+import { addCustomer, deleteCustomer, getCustomers, updateCustomer } from '../api/customers';
+import ConfirmDialog from '../components/ConfirmDialog';
+import CustomerDialog from '../components/CustomerDialog';
+import type { Customer, CustomerFormData } from '../types/customer';
 
 function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [notification, setNotification] = useState('');
+  const [customerDialogOpen, setCustomerDialogOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await getCustomers();
+      setCustomers(data);
+    } catch {
+      setError('Failed to load customers');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        setLoading(true);
-        setError('');
-        const data = await getCustomers();
-        setCustomers(data);
-      } catch {
-        setError('Failed to load customers');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCustomers();
   }, []);
 
@@ -58,6 +71,55 @@ function CustomersPage() {
     );
   }, [customers, search]);
 
+  const handleAddClick = () => {
+    setSelectedCustomer(null);
+    setCustomerDialogOpen(true);
+  };
+
+  const handleEditClick = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setCustomerDialogOpen(true);
+  };
+
+  const handleDeleteClick = (customer: Customer) => {
+    setCustomerToDelete(customer);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleSaveCustomer = async (customerData: CustomerFormData) => {
+    try {
+      if (selectedCustomer) {
+        await updateCustomer(selectedCustomer._links.self.href, customerData);
+        setNotification('Customer updated');
+      } else {
+        await addCustomer(customerData);
+        setNotification('Customer added');
+      }
+
+      setCustomerDialogOpen(false);
+      setSelectedCustomer(null);
+      fetchCustomers();
+    } catch {
+      setError('Failed to save customer');
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!customerToDelete) {
+      return;
+    }
+
+    try {
+      await deleteCustomer(customerToDelete._links.self.href);
+      setNotification('Customer deleted');
+      setDeleteDialogOpen(false);
+      setCustomerToDelete(null);
+      fetchCustomers();
+    } catch {
+      setError('Failed to delete customer');
+    }
+  };
+
   const rows: GridRowsProp = filteredCustomers.map((customer) => ({
     id: customer._links.self.href,
     firstname: customer.firstname,
@@ -67,6 +129,7 @@ function CustomersPage() {
     city: customer.city,
     email: customer.email,
     phone: customer.phone,
+    customer,
   }));
 
   const columns: GridColDef[] = [
@@ -77,13 +140,51 @@ function CustomersPage() {
     { field: 'city', headerName: 'City', flex: 1, minWidth: 130 },
     { field: 'email', headerName: 'Email', flex: 1.4, minWidth: 220 },
     { field: 'phone', headerName: 'Phone', flex: 1, minWidth: 150 },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      sortable: false,
+      filterable: false,
+      minWidth: 120,
+      renderCell: (params) => (
+        <Box>
+          <IconButton
+            color="primary"
+            onClick={() => handleEditClick(params.row.customer)}
+          >
+            <EditIcon />
+          </IconButton>
+
+          <IconButton
+            color="error"
+            onClick={() => handleDeleteClick(params.row.customer)}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Box>
+      ),
+    },
   ];
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
-        Customers
-      </Typography>
+      <Box
+        sx={{
+          mb: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+        }}
+      >
+        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+          Customers
+        </Typography>
+
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddClick}>
+          Add customer
+        </Button>
+      </Box>
 
       <Paper sx={{ p: 2, mb: 2 }}>
         <TextField
@@ -101,20 +202,14 @@ function CustomersPage() {
       </Paper>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
           {error}
         </Alert>
       )}
 
       <Paper sx={{ height: 600, width: '100%' }}>
         {loading ? (
-          <Box
-            sx={{
-              height: '100%',
-              display: 'grid',
-              placeItems: 'center',
-            }}
-          >
+          <Box sx={{ height: '100%', display: 'grid', placeItems: 'center' }}>
             <CircularProgress />
           </Box>
         ) : (
@@ -131,6 +226,28 @@ function CustomersPage() {
           />
         )}
       </Paper>
+
+      <CustomerDialog
+        open={customerDialogOpen}
+        customer={selectedCustomer}
+        onClose={() => setCustomerDialogOpen(false)}
+        onSave={handleSaveCustomer}
+      />
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Delete customer"
+        message="Are you sure you want to delete this customer and all related trainings?"
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+      />
+
+      <Snackbar
+        open={Boolean(notification)}
+        autoHideDuration={3000}
+        message={notification}
+        onClose={() => setNotification('')}
+      />
     </Box>
   );
 }
