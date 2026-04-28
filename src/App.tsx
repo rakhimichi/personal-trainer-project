@@ -1,8 +1,9 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Box, Container } from '@mui/material';
 import Navbar from './components/Navbar';
-import CustomersPage from './pages/CustomersPage.tsx';
-import TrainingsPage from './pages/TrainingsPage.tsx';
+import CustomersPage from './pages/CustomersPage';
+import TrainingsPage from './pages/TrainingsPage';
+import CalendarPage from './pages/CalendarPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Navigate to="/customers" replace />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/trainings" element={<TrainingsPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
         </Routes>
       </Container>
     </Box>

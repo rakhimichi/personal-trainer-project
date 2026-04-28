@@ -1,3 +1,4 @@
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import GroupsIcon from '@mui/icons-material/Groups';
 import EventNoteIcon from '@mui/icons-material/EventNote';
@@ -45,6 +46,20 @@ function Navbar() {
               }}
             >
               Trainings
+            </Button>
+
+            <Button
+              component={NavLink}
+              to="/calendar"
+              color="inherit"
+              startIcon={<CalendarMonthIcon />}
+              sx={{
+                '&.active': {
+                  backgroundColor: 'rgba(255,255,255,0.16)',
+                },
+              }}
+            >
+              Calendar
             </Button>
           </Box>
         </Toolbar>
