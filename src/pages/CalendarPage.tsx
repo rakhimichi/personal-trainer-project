@@ -54,28 +54,50 @@ function CalendarPage() {
         </Alert>
       )}
 
-      <Paper sx={{ p: 2, minHeight: 650 }}>
+      <Paper
+        elevation={2}
+        sx={{
+          p: 3,
+          borderRadius: 3,
+          minHeight: 720,
+          overflow: 'hidden',
+        }}
+      >
         {loading ? (
-          <Box sx={{ height: 600, display: 'grid', placeItems: 'center' }}>
+          <Box sx={{ height: 650, display: 'grid', placeItems: 'center' }}>
             <CircularProgress />
           </Box>
         ) : (
-          <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay',
-            }}
-            events={events}
-            height="auto"
-            eventTimeFormat={{
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            }}
-          />
+          <Box className="calendar-wrapper">
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              initialView="timeGridWeek"
+              headerToolbar={{
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay',
+              }}
+              buttonText={{
+                today: 'Today',
+                month: 'Month',
+                week: 'Week',
+                day: 'Day',
+              }}
+              events={events}
+              height="720px"
+              nowIndicator
+              allDaySlot={false}
+              slotMinTime="06:00:00"
+              slotMaxTime="23:59:00"
+              slotDuration="00:30:00"
+              eventTimeFormat={{
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              }}
+              eventDisplay="block"
+            />
+          </Box>
         )}
       </Paper>
     </Box>
