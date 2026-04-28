@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
 import EditIcon from '@mui/icons-material/Edit';
 import SearchIcon from '@mui/icons-material/Search';
 import {
@@ -70,6 +71,49 @@ function CustomersPage() {
         .includes(term)
     );
   }, [customers, search]);
+
+  const handleExportCsv = () => {
+    const headers = [
+      'First name',
+      'Last name',
+      'Street address',
+      'Postcode',
+      'City',
+      'Email',
+      'Phone',
+    ];
+
+    const csvRows = filteredCustomers.map((customer) => [
+      customer.firstname,
+      customer.lastname,
+      customer.streetaddress,
+      customer.postcode,
+      customer.city,
+      customer.email,
+      customer.phone,
+    ]);
+
+    const csvContent = [headers, ...csvRows]
+      .map((row) =>
+        row
+          .map((value) => `"${String(value).replaceAll('"', '""')}"`)
+          .join(',')
+      )
+      .join('\n');
+
+    const blob = new Blob([csvContent], {
+      type: 'text/csv;charset=utf-8;',
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = 'customers.csv';
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
 
   const handleAddClick = () => {
     setSelectedCustomer(null);
@@ -148,17 +192,11 @@ function CustomersPage() {
       minWidth: 120,
       renderCell: (params) => (
         <Box>
-          <IconButton
-            color="primary"
-            onClick={() => handleEditClick(params.row.customer)}
-          >
+          <IconButton color="primary" onClick={() => handleEditClick(params.row.customer)}>
             <EditIcon />
           </IconButton>
 
-          <IconButton
-            color="error"
-            onClick={() => handleDeleteClick(params.row.customer)}
-          >
+          <IconButton color="error" onClick={() => handleDeleteClick(params.row.customer)}>
             <DeleteIcon />
           </IconButton>
         </Box>
@@ -181,9 +219,20 @@ function CustomersPage() {
           Customers
         </Typography>
 
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddClick}>
-          Add customer
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={handleExportCsv}
+            disabled={filteredCustomers.length === 0}
+          >
+            Export CSV
+          </Button>
+
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddClick}>
+            Add customer
+          </Button>
+        </Box>
       </Box>
 
       <Paper sx={{ p: 2, mb: 2 }}>
