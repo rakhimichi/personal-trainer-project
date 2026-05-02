@@ -1,3 +1,4 @@
+import BarChartIcon from '@mui/icons-material/BarChart';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import GroupsIcon from '@mui/icons-material/Groups';
@@ -11,6 +12,7 @@ function Navbar() {
       <Container maxWidth="xl">
         <Toolbar disableGutters sx={{ gap: 2 }}>
           <FitnessCenterIcon />
+
           <Typography
             variant="h6"
             component="div"
@@ -60,6 +62,20 @@ function Navbar() {
               }}
             >
               Calendar
+            </Button>
+
+            <Button
+              component={NavLink}
+              to="/statistics"
+              color="inherit"
+              startIcon={<BarChartIcon />}
+              sx={{
+                '&.active': {
+                  backgroundColor: 'rgba(255,255,255,0.16)',
+                },
+              }}
+            >
+              Statistics
             </Button>
           </Box>
         </Toolbar>
